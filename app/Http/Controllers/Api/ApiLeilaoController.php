@@ -48,8 +48,11 @@ class ApiLeilaoController extends Controller
         ]);
     }
 
-    public function delete($id)
+    public function destroy($id)
     {
+        $leilao = Leilao::findOrFail($id);
+        $leilao->delete();
+    
         return response()->json([
             'mensagem' => 'Leilão deletado com sucesso'
         ]);
