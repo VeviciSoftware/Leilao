@@ -24,4 +24,3 @@ Route::apiResource('/leilao', ApiLeilaoController::class);
 
 // Route::get('/api/leilao/check-access', 'App\Http\Controllers\api\LeilaoApiController@checkAccess');
 // Route::get('/api/leilao', 'App\Http\Controllers\api\LeilaoApiController@index');
-// Route::get('/api/leilao/listar', 'App\Http\Controllers\api\LeilaoApiController@listarLeiloes');

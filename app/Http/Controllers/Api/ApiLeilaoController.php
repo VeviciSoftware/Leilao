@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Leilao;
 
 class ApiLeilaoController extends Controller
 {
@@ -28,6 +29,16 @@ class ApiLeilaoController extends Controller
         return response()->json([
             'mensagem' => 'Leilão criado com sucesso'
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nome' => 'required|string|max:255',
+            'descricao' => 'required|string',
+        ]);
+
+        return Leilao::create($request->all());
     }
 
     public function update(Request $request, $id)
