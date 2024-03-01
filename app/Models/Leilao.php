@@ -12,11 +12,7 @@ class Leilao extends Model
 
     protected $table = 'leilao';
 
-    protected $fillable = ['nome', 'descricao', 'valor_inicial', 'data_inicio', 'data_fim', 'status'];
-
-    protected $casts = [
-        'status' => 'enum',
-    ];
+    protected $fillable = ['nome', 'descricao', 'valor_inicial', 'data_inicio', 'data_termino', 'status'];
 
     public function lances()
     {
@@ -26,6 +22,55 @@ class Leilao extends Model
     public function participantes()
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function getValorAtualAttribute()
+    {
+        if ($this->lances->isEmpty()) {
+            return $this->valor_inicial;
+        }
+
+        return $this->lances->max('valor');
+    }
+
+    public function isAberto()
+    {
+        return $this->status === 'ABERTO';
+    }
+
+    public function isFinalizado()
+    {
+        return $this->status === 'FINALIZADO';
+    }
+
+    public function isExpirado()
+    {
+        return $this->status === 'EXPIRADO';
+    }
+
+    public function isInativo()
+    {
+        return $this->status === 'INATIVO';
+    }
+
+    public function scopeAtivos($query)
+    {
+        return $query->where('status', 'ABERTO');
+    }
+
+    public function scopeFinalizados($query)
+    {
+        return $query->where('status', 'FINALIZADO');
+    }
+
+    public function scopeExpirados($query)
+    {
+        return $query->where('status', 'EXPIRADO');
+    }
+
+    public function scopeInaivos($query)
+    {
+        return $query->where('status', 'INATIVO');
     }
 
 }

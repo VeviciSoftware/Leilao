@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LeilaoRequest;
 use Illuminate\Http\Request;
 use App\Models\Leilao;
+use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Stmt\TryCatch;
 
 class ApiLeilaoController extends Controller
 {
@@ -23,20 +26,8 @@ class ApiLeilaoController extends Controller
 
     }
 
-    public function create(Request $request)
+    public function store(LeilaoRequest $request)
     {
-        return response()->json([
-            'mensagem' => 'Leilão criado com sucesso'
-        ]);
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nome' => 'required|string|max:255',
-            'descricao' => 'required|string',
-        ]);
-
         return Leilao::create($request->all());
     }
 
