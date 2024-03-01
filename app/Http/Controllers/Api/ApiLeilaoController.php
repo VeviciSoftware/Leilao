@@ -12,16 +12,15 @@ class ApiLeilaoController extends Controller
     public function healthCheck()
     {
         return response()->json([
-            'status' => 'ok'
+            'status' => 'ok',
+            'leilao' => 'Leilão API',
+            'versao' => '1.0.0'
         ]);
     }
     
     public function index()
     {
-        return response()->json([
-            'leilao' => 'Leilão API',
-            'versao' => '1.0.0'
-        ]);
+
     }
 
     public function create(Request $request)

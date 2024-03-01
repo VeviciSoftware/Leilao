@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ApiLeilaoController;
+use App\Http\Controllers\Api\ApiUsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/health-check', [ApiLeilaoController::class, 'healthCheck']);
 Route::apiResource('/leilao', ApiLeilaoController::class);
+
+// Rotas de usuários
+Route::apiResource('/users', ApiUsersController::class);
+Route::get('/users/{id}', [ApiUsersController::class, 'show']);
+
 
 // Route::get('/api/leilao/check-access', 'App\Http\Controllers\api\LeilaoApiController@checkAccess');
 // Route::get('/api/leilao', 'App\Http\Controllers\api\LeilaoApiController@index');
