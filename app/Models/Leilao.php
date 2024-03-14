@@ -14,14 +14,14 @@ class Leilao extends Model
 
     protected $fillable = ['nome', 'descricao', 'valor_inicial', 'data_inicio', 'data_termino', 'status'];
 
+    public function participante()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function lances()
     {
         return $this->hasMany(Lance::class);
-    }
-
-    public function participantes()
-    {
-        return $this->belongsToMany(User::class);
     }
 
     public function getValorAtualAttribute()

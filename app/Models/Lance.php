@@ -16,9 +16,9 @@ class Lance extends Model
         return $this->belongsTo(Leilao::class); // Relacionamento "Um para um" com Leilão
     }
 
-    public function usuario()
+    public function participante()
     {
-        return $this->belongsTo(User::class); // Relacionamento "Um para muitos" com Usuário
+        return $this->belongsTo(User::class);
     }
 
 }
