@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LeilaoRequest;
 use Illuminate\Http\Request;
 use App\Models\Leilao;
-use Illuminate\Support\Facades\Log;
-use PhpParser\Node\Stmt\TryCatch;
 
 class ApiLeilaoController extends Controller
 {
@@ -23,7 +21,11 @@ class ApiLeilaoController extends Controller
     
     public function index()
     {
+        if (Leilao::all()->isEmpty()) {
+            return response()->json(['message' => 'Nenhum leilão encontrado'], 404);
+        }
 
+        return Leilao::all();
     }
 
     public function store(LeilaoRequest $request)

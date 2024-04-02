@@ -43,7 +43,11 @@ class LeilaoTest extends TestCase
     public function testeDeCriacaoDeLeilao() {
         $response = $this->post('/api/leilao', [
             'nome' => 'Leilão de um carro',
-            'descricao' => 'Leilão de um carro usado'
+            'descricao' => 'Leilão de um carro usado',
+            'valor_inicial' => 1000,
+            'data_inicio' => '2021-10-01',
+            'data_termino' => '2021-10-10',
+            'status' => 'ABERTO'
         ]);
     
         $response->assertStatus(201);
