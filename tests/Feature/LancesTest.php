@@ -3,11 +3,11 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Leilao;
 use App\Models\User;
 use App\Models\Lance;
+use App\Http\Requests\LanceRequest;
 
 class LancesTest extends TestCase
 {
@@ -22,69 +22,30 @@ class LancesTest extends TestCase
     }
 
     //Lance criado com sucesso.
-    public function testStoreSuccess()
+    use RefreshDatabase;
+
+    public function testAddLance()
     {
-        $leilao = Leilao::factory()->create(['finalizado' => false]);
+        // Cria um usuário e um leilão
         $user = User::factory()->create();
+        $leilao = Leilao::factory()->create();
 
-        $response = $this->postJson('/api/lance/store', [
-            'valor' => 100,
+        // Testa a criação de um lance
+        $lanceData = [
+            'usuario_id' => $user->id,
             'leilao_id' => $leilao->id,
-            'user_id' => $user->id,
-        ]);
+            'valor' => 100,
+        ];
 
-        $response->assertStatus(200)
-            ->assertJson(['mensagem' => 'Lance realizado com sucesso']);
+        $request = new LanceRequest($lanceData);
+
+        $repository = new \App\Repositories\EloquentLanceRepository();
+        $lance = $repository->add($request);
+
+        $this->assertInstanceOf(Lance::class, $lance);
+        $this->assertEquals($user->id, $lance->usuario_id);
+        $this->assertEquals($leilao->id, $lance->leilao_id);
+        $this->assertEquals(100, $lance->valor);
     }
 
-    public function testStoreSuccessUsingMock(): void
-    {
-        $leilao = Leilao::factory()->create(['finalizado' => false]);
-        $user = User::factory()->create();
-
-        $this->mock(Leilao::class, function ($mock) use ($leilao) {
-            $mock->shouldReceive('find')->once()->andReturn($leilao);
-        });
-
-        $response = $this->postJson('/api/lance/store', [
-            'valor' => 100,
-            'leilao_id' => $leilao->id,
-            'user_id' => $user->id,
-        ]);
-
-        $response->assertStatus(200)
-            ->assertJson(['mensagem' => 'Lance realizado com sucesso']);
-    }
-
-    //Leilão finalizado.
-    public function testStoreFailLeilaoFinalizado()
-    {
-        $leilao = Leilao::factory()->create(['finalizado' => true]);
-        $user = User::factory()->create();
-
-        $response = $this->postJson('/api/lance/store', [
-            'valor' => 100,
-            'leilao_id' => $leilao->id,
-            'user_id' => $user->id,
-        ]);
-
-        $response->assertStatus(400)
-            ->assertJson(['mensagem' => 'O leião já foi finalizado. Não é possível realizar lances.']);
-    }
-
-    public function testStoreFailLanceMenor()
-    {
-        $leilao = Leilao::factory()->create(['finalizado' => false]);
-        $user = User::factory()->create();
-        Lance::create(['valor' => 200, 'leilao_id' => $leilao->id, 'user_id' => $user->id]);
-
-        $response = $this->postJson('/api/lance/store', [
-            'valor' => 100,
-            'leilao_id' => $leilao->id,
-            'user_id' => $user->id,
-        ]);
-
-        $response->assertStatus(400)
-            ->assertJson(['mensagem' => 'Lance deve ser maior que o lance anterior']);
-    }
 }

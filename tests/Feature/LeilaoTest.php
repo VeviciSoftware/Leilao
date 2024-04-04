@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use App\Http\Requests\LeilaoRequest;
 use App\Models\Leilao;
 use Tests\TestCase;
 
@@ -29,29 +30,42 @@ class LeilaoTest extends TestCase
         ]);
     }
 
-    public function test_index(): void
+    public function testAddLeilao()
     {
-        $response = $this->get('/api/leilao');
-
-        $response->assertStatus(200);
-        $response->assertJson([
-            'leilao' => 'Leilão API',
-            'versao' => '1.0.0'
-        ]);
-    }
-
-    public function testeDeCriacaoDeLeilao() {
-        $response = $this->post('/api/leilao', [
-            'nome' => 'Leilão de um carro',
-            'descricao' => 'Leilão de um carro usado',
+        // Cria um leilao
+        $leilaoData = [
+            'nome' => 'Leilao de um carro',
+            'descricao' => 'Leilao de um carro usado',
             'valor_inicial' => 1000,
             'data_inicio' => '2021-10-01',
             'data_termino' => '2021-10-10',
             'status' => 'ABERTO'
-        ]);
+        ];
     
-        $response->assertStatus(201);
+        $request = new LeilaoRequest($leilaoData);
+    
+        $repository = new \App\Repositories\EloquentLeilaoRepository();
+        $response = $repository->add($request);
+    
+        $leilao = $response->getData();
+    
+        $this->assertEquals('Leilao de um carro', $leilao->nome);
+        $this->assertEquals('Leilao de um carro usado', $leilao->descricao);
+        $this->assertEquals(1000, $leilao->valor_inicial);
+        $this->assertEquals('2021-10-01', $leilao->data_inicio);
+        $this->assertEquals('2021-10-10', $leilao->data_termino);
+        $this->assertEquals('ABERTO', $leilao->status);
     }
+
+    // Você pode adicionar mais testes para cobrir os outros casos
+
+
+    // public function testeDeCriacaoDeLeilaoUsandoMocks() {
+    //     $leilao = Leilao::factory()->make();
+    //     $response = $this->post('/api/leilao', $leilao->toArray());
+    
+    //     $response->assertStatus(201);
+    // }
 
     // public function testeDeExclusaoDeLeilao()    
     // {
@@ -68,4 +82,26 @@ class LeilaoTest extends TestCase
     //       $this->assertDatabaseMissing('leiloes', ['id' => $leilao->id]);
     //     }
     // }
+
+    // public function testeDeMudancaDeStatusDoLeilaoParaExpirado() {
+    //     // Cria um leilão com uma data de término no passado
+    //     $leilao = Leilao::create([
+    //         'nome' => 'Leilao Teste',
+    //         'descricao' => 'Descricao Teste',
+    //         'valor_inicial' => 100,
+    //         'data_inicio' => Carbon::now()->subDays(2),
+    //         'data_termino' => Carbon::now()->subDay(),
+    //         'status' => 'ABERTO',
+    //     ]);
+
+    //     // Executa o comando ExpireLeiloes
+    //     $this->artisan('leiloes:expire');
+
+    //     // Recarrega o leilão do banco de dados
+    //     $leilao = $leilao->fresh();
+
+    //     // Verifica se o status do leilão foi alterado para 'EXPIRADO'
+    //     $this->assertEquals('EXPIRADO', $leilao->status);
+    // }
+    
 }

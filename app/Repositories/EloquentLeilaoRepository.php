@@ -18,9 +18,8 @@ class EloquentLeilaoRepository implements ILeilaoRepository {
             ], 400);
         }
 
-        //Quando um leilão é criado, seu status deve ser sempre 'ABERTO'    
-        // $request->merge(['status' => 'ABERTO']);
+        $leilao = Leilao::create($request->all());
 
-        return Leilao::create($request->all());
+        return response()->json($leilao, 201);
     }
 }
