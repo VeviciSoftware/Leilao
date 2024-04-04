@@ -6,7 +6,6 @@ use App\Http\Requests\LanceRequest;
 use App\Models\Lance;
 use App\Models\Leilao;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 
 class EloquentLanceRepository implements ILanceRepository
 {

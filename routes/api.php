@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/health-check', [ApiLeilaoController::class, 'healthCheck']);
 Route::apiResource('/leilao', ApiLeilaoController::class);
+Route::get('/leilao/{id}', [ApiLeilaoController::class, 'show']);
 
 // Rotas de usuários
 Route::apiResource('/users', ApiUsersController::class);
@@ -30,6 +31,7 @@ Route::get('/users/{id}', [ApiUsersController::class, 'show']);
 
 // Rotas de lances
 Route::apiResource('/lances', ApiLanceController::class);
+Route::get('/lances/{id}', [ApiLanceController::class, 'show']);
 
 
 // Route::get('/api/leilao/check-access', 'App\Http\Controllers\api\LeilaoApiController@checkAccess');

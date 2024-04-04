@@ -28,7 +28,12 @@ class ApiUsersController extends Controller
     }
 
     public function show($id) {
-        return User::findOrFail($id);
+        try {
+            $user = User::findOrFail($id);
+            return response()->json(['mensagem' => 'Usuário encontrado!', 'user' => $user], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['mensagem' => 'Usuário não encontrado!'], 404);
+        }
     }
 
 }

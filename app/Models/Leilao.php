@@ -14,6 +14,15 @@ class Leilao extends Model
 
     protected $fillable = ['nome', 'descricao', 'valor_inicial', 'data_inicio', 'data_termino', 'status'];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($leilao) {
+            $leilao->status = 'ABERTO';
+        });
+    }
+
     public function participante()
     {
         return $this->belongsTo(User::class);

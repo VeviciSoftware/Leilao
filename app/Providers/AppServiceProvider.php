@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Repositories\ILeilaoRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\EloquentLanceRepository;
 use App\Repositories\ILanceRepository;
+use App\Repositories\EloquentLeilaoRepository;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +18,12 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(
             ILanceRepository::class,
-            EloquentLanceRepository::class
+            EloquentLanceRepository::class,
+        );
+
+        $this->app->bind(
+            ILeilaoRepository::class,
+            EloquentLeilaoRepository::class,
         );
     }
 

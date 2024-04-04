@@ -14,7 +14,6 @@ class LeilaoRequest extends FormRequest
             'valor_inicial' => 'required|numeric',
             'data_inicio' => 'required|date',
             'data_termino' => 'required|date',
-            'status' => 'required|in:ABERTO,FINALIZADO,EXPIRADO,INATIVO',
         ];
     }
 }

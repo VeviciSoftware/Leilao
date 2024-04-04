@@ -6,9 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LanceRequest;
 use App\Models\Lance;
 use App\Repositories\ILanceRepository;
-use App\Models\Leilao;
 use Illuminate\Http\Request;
-use App\Models\User;
+
 
 class ApiLanceController extends Controller
 {
@@ -30,19 +29,23 @@ class ApiLanceController extends Controller
     {
         $lance = $this->repository->add($request);
 
-        //Retorna resposta com status 201
-        return response()->json($lance, 201);
+        return response()->json($lance);
         
     }
 
     public function show($id)
     {
-        //
+        try {
+            $lance = Lance::findOrFail($id);
+            return response()->json(['mensagem' => 'Lance encontrado!', 'lance' => $lance], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['mensagem' => 'Lance não encontrado!'], 404);
+        }
     }
 
     public function update(Request $request, $id)
     {
-        //
+        
     }
 
     public function destroy($id)
