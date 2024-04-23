@@ -48,4 +48,33 @@ class LancesTest extends TestCase
         $this->assertEquals(100, $lance->valor);
     }
 
+    //Lance com valor menor que o maior lance atual.
+    public function testAddLanceValorMenorQueMaiorLanceAtual()
+    {
+        // Cria um usuário e um leilão
+        $user = User::factory()->create();
+        $leilao = Leilao::factory()->create();
+
+        // Cria um lance
+        $lance = Lance::factory()->create([
+            'usuario_id' => $user->id,
+            'leilao_id' => $leilao->id,
+            'valor' => 100,
+        ]);
+
+        // Testa a criação de um lance com valor menor que o maior lance atual
+        $lanceData = [
+            'usuario_id' => $user->id,
+            'leilao_id' => $leilao->id,
+            'valor' => 50,
+        ];
+
+        $request = new LanceRequest($lanceData);
+
+        $repository = new \App\Repositories\EloquentLanceRepository();
+        $response = $repository->add($request);
+
+        $this->assertEquals('O valor do lance deve ser maior que o maior lance atual', $response->getData()->mensagem);
+    }
+
 }

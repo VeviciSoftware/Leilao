@@ -57,8 +57,6 @@ class LeilaoTest extends TestCase
         $this->assertEquals('ABERTO', $leilao->status);
     }
 
-    // Você pode adicionar mais testes para cobrir os outros casos
-
 
     // public function testeDeCriacaoDeLeilaoUsandoMocks() {
     //     $leilao = Leilao::factory()->make();

@@ -23,3 +23,4 @@ class EloquentLeilaoRepository implements ILeilaoRepository {
         return response()->json($leilao, 201);
     }
 }
+
