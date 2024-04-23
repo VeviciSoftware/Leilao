@@ -19,7 +19,7 @@ class Leilao extends Model
         parent::boot();
 
         static::creating(function ($leilao) {
-            $leilao->status = 'ABERTO';
+            $leilao->status = 'INATIVO';
         });
     }
 

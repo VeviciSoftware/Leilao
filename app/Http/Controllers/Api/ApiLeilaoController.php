@@ -25,13 +25,24 @@ class ApiLeilaoController extends Controller
         ]);
     }
     
-    public function index()
+    public function index(Request $request)
     {
-        if (Leilao::all()->isEmpty()) {
+        $status = $request->query('status');
+    
+        if ($status) {
+            $leiloes = Leilao::where('status', strtoupper($status))->get();
+            if ($leiloes->isEmpty()) {
+                return response()->json(['message' => 'Nenhum leilão encontrado com o status ' . $status], 404);
+            }
+            return $leiloes;
+        }
+    
+        $leiloes = Leilao::all();
+        if ($leiloes->isEmpty()) {
             return response()->json(['message' => 'Nenhum leilão encontrado'], 404);
         }
-
-        return Leilao::all();
+    
+        return $leiloes;
     }
 
     public function store(LeilaoRequest $request)
@@ -70,4 +81,17 @@ class ApiLeilaoController extends Controller
             return response()->json(['mensagem' => 'Leilão não encontrado!'], 404);
         }
     }
+
+    public function finalizarLeilao($id)
+    {
+        $leilao = Leilao::findOrFail($id);
+        $leilao->status = 'FINALIZADO';
+        $leilao->save();
+
+        return response()->json([
+            'mensagem' => 'Leilão finalizado com sucesso'
+        ]);
+    }
+
+    
 }
