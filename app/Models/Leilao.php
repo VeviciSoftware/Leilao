@@ -10,6 +10,10 @@ class Leilao extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'valor_inicial' => 'float',
+    ];
+
     protected $table = 'leilao';
 
     protected $fillable = ['nome', 'descricao', 'valor_inicial', 'data_inicio', 'data_termino', 'status'];

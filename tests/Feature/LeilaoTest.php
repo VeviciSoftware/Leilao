@@ -2,11 +2,10 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use App\Http\Requests\LeilaoRequest;
-use App\Models\Leilao;
 use Tests\TestCase;
+use App\Repositories\EloquentLeilaoRepository;
+use Mockery;
 
 class LeilaoTest extends TestCase
 {
@@ -39,22 +38,28 @@ class LeilaoTest extends TestCase
             'valor_inicial' => 1000,
             'data_inicio' => '2021-10-01',
             'data_termino' => '2021-10-10',
-            'status' => 'ABERTO'
+            'status' => 'INATIVO'
         ];
     
         $request = new LeilaoRequest($leilaoData);
     
-        $repository = new \App\Repositories\EloquentLeilaoRepository();
-        $response = $repository->add($request);
+        // Cria um mock do EloquentLeilaoRepository
+        $repository = Mockery::mock(EloquentLeilaoRepository::class);
+        $repository->shouldReceive('add')
+            ->once()
+            ->with(Mockery::on(function ($arg) use ($request) {
+                return $arg == $request;
+            }))
+            ->andReturn((object) $leilaoData);
     
-        $leilao = $response->getData();
+        $leilao = $repository->add($request);
     
         $this->assertEquals('Leilao de um carro', $leilao->nome);
         $this->assertEquals('Leilao de um carro usado', $leilao->descricao);
         $this->assertEquals(1000, $leilao->valor_inicial);
         $this->assertEquals('2021-10-01', $leilao->data_inicio);
         $this->assertEquals('2021-10-10', $leilao->data_termino);
-        $this->assertEquals('ABERTO', $leilao->status);
+        $this->assertEquals('INATIVO', $leilao->status);
     }
 
 

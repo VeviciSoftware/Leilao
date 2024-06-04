@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LeilaoRequest;
 use App\Repositories\ILeilaoRepository;
+use App\Services\Leilao\Encerrador;
 use Illuminate\Http\Request;
 use App\Models\Leilao;
 
@@ -39,7 +40,7 @@ class ApiLeilaoController extends Controller
     
         $leiloes = Leilao::all();
         if ($leiloes->isEmpty()) {
-            return response()->json(['message' => 'Nenhum leilão encontrado'], 404);
+            return response()->json(['message' => 'Nenhum leilão encontrado'], 200);
         }
     
         return $leiloes;
@@ -49,7 +50,7 @@ class ApiLeilaoController extends Controller
     {
         $leilao = $this->repository->add($request);
 
-        return response()->json($leilao);
+        return response()->json($leilao, 201);
     }
 
     public function update(Request $request, $id)
@@ -82,15 +83,14 @@ class ApiLeilaoController extends Controller
         }
     }
 
-    public function finalizarLeilao($id)
+    public function encerrarLeilao(Request $request, $id)
     {
         $leilao = Leilao::findOrFail($id);
-        $leilao->status = 'FINALIZADO';
-        $leilao->save();
-
-        return response()->json([
-            'mensagem' => 'Leilão finalizado com sucesso'
-        ]);
+    
+        $encerrador = new Encerrador($leilao);
+        $encerrador->encerra();
+    
+        return response()->json(['mensagem' => 'Leilão finalizado com sucesso'], 200);
     }
 
     

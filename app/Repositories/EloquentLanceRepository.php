@@ -39,5 +39,4 @@ class EloquentLanceRepository implements ILanceRepository
         return Lance::where('leilao_id', $leilao_id)->max('valor');
     }
 
-
 }

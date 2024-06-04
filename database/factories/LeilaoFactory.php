@@ -17,7 +17,7 @@ class LeilaoFactory extends Factory
             'valor_inicial' => $this->faker->randomFloat(2, 1000, 10000),
             'data_inicio' => $this->faker->date(),
             'data_termino' => $this->faker->date(),
-            'status' => $this->faker->randomElement(['ABERTO', 'FINALIZADO'])
+            'status' => $this->faker->randomElement(['ABERTO', 'FINALIZADO', 'EXPIRADO', 'INATIVO'])
         ];
     }
 }
