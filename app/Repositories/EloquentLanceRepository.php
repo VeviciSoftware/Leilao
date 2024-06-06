@@ -39,6 +39,16 @@ class EloquentLanceRepository implements ILanceRepository
             ], 400);
         }
 
+        //Verifica se o usuário está dando dois lances seguidos. Se sim, não é permitido.
+        $lanceAnterior = Lance::where('usuario_id', $request->usuario_id)->orderBy('created_at', 'desc')->first();
+        if ($lanceAnterior) {
+            if ($lanceAnterior->leilao_id == $request->leilao_id) {
+                return response()->json([
+                    'mensagem' => 'O usuário não pode dar dois lances seguidos'
+                ], 400);
+            }
+        }
+
         return Lance::create($request->all());
     }
 

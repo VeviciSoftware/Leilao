@@ -22,8 +22,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/health-check', [ApiLeilaoController::class, 'healthCheck']);
+
+// Rotas de leilões
 Route::apiResource('/leilao', ApiLeilaoController::class);
 Route::get('/leilao/{id}', [ApiLeilaoController::class, 'show']);
+Route::get('leilao/{id}/lances', [ApiLeilaoController::class, 'showLeilaoELances']);
 
 // Rotas de usuários
 Route::apiResource('/users', ApiUsersController::class);

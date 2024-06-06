@@ -18,7 +18,7 @@ class Lance extends Model
 
     public function participante()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'usuario_id'); // Relacionamento "Um para um" com User
     }
 
 }

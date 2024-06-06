@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\Leilao;
+use App\Models\User;
 use App\Services\Leilao\Encerrador;
 use App\Http\Controllers\Api\ApiLeilaoController;
 use App\Repositories\ILeilaoRepository;
@@ -159,6 +160,47 @@ class ApiLeilaoControllerTest extends TestCase {
         $leilao->delete();
     
         return response()->json(['mensagem' => 'Leilão deletado com sucesso'], 204);
+    }
+
+
+    public function test_get_lista_de_lances_em_um_leilao()
+    {
+        $leilao = Leilao::factory(1)->create()->first();
+        $user = User::factory()->create();
+        $lances = $leilao->lances()->createMany([
+            ['valor' => 1000, 'usuario_id' => $user->id],
+            ['valor' => 2000, 'usuario_id' => $user->id],
+            ['valor' => 3000, 'usuario_id' => $user->id],
+        ]);
+    
+        $response = $this->get('/api/leilao/' . $leilao->id . '/lances');
+    
+        $response->assertStatus(200);
+    
+        // Verifica se o número total de lances é 3
+        $response->assertJsonCount(3, 'lances');
+    
+        $response->assertJsonStructure([
+            'leilao' => [
+                'nome',
+                'descricao',
+                'valor_inicial',
+                'data_inicio',
+                'data_termino',
+                'status'
+            ],
+            'lances' => [
+                '*' => [
+                    'valor',
+                    'created_at',
+                    'participante' => [
+                        'id',
+                        'email',
+                        'name'
+                    ]
+                ]
+            ]
+        ]);
     }
     
 

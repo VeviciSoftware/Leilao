@@ -84,6 +84,35 @@ class ApiLeilaoController extends Controller
         }
     }
 
+    public function showLeilaoELances($id)
+    {
+        $leilaoObj = Leilao::findOrFail($id);
+    
+        $leilao = [
+            'id' => $leilaoObj->id,
+            'nome' => $leilaoObj->nome,
+            'descricao' => $leilaoObj->descricao,
+            'valor_inicial' => $leilaoObj->valor_inicial,
+            'data_inicio' => $leilaoObj->data_inicio,
+            'data_termino' => $leilaoObj->data_termino,
+            'status' => $leilaoObj->status,
+        ];
+    
+        $lances = $leilaoObj->lances()->with('participante')->get()->map(function ($lance) {
+            return [
+                'valor' => $lance->valor,
+                'created_at' => $lance->created_at,
+                'participante' => [
+                    'id' => $lance->participante->id,
+                    'email' => $lance->participante->email,
+                    'name' => $lance->participante->name,
+                ],
+            ];
+        });
+    
+        return response()->json(['leilao' => $leilao, 'lances' => $lances], 200);
+    }
+
     public function encerrarLeilao(Request $request, $id)
     {
         $leilao = $this->repository->getLeilaoById($id);

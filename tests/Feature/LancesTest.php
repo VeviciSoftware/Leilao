@@ -15,13 +15,11 @@ use Mockery;
 class LancesTest extends TestCase
 {
     //Lance com valor menor que o maior lance atual.
-    public function testAddLanceValorMenorQueMaiorLanceAtual()
+    public function test_add_lance_valor_menor_que_maior_lance_atual()
     {
-        // Cria um usuário e um leilão
         $user = User::factory()->create();
         $leilao = Leilao::factory()->create();
 
-        // Cria um lance
         $lance = Lance::factory()->create([
             'usuario_id' => $user->id,
             'leilao_id' => $leilao->id,
@@ -41,11 +39,11 @@ class LancesTest extends TestCase
         $response = $repository->add($request);
 
         $this->assertEquals('O valor do lance deve ser maior que o maior lance atual', $response->getData()->mensagem);
+        $this->assertEquals(400, $response->status());
     }
 
-    public function testAddLanceMenorQueValorInicialLeilao()
+    public function test_add_lance_menor_que_valor_inicial_leilao()
     {
-        // Cria um usuário e um leilão com um valor inicial de 100
         $user = User::factory()->create();
         $leilao = Leilao::factory()->create(['valor_inicial' => 100]);
     
@@ -62,6 +60,33 @@ class LancesTest extends TestCase
         $response = $repository->add($request);
     
         $this->assertEquals('O valor do lance deve ser maior ou igual ao valor inicial do leilão', $response->getData()->mensagem);
+        $this->assertEquals(400, $response->status());
+    }
+
+    public function test_usuario_nao_pode_dar_dois_lances_seguidos() 
+    {
+        $user = User::factory()->create();
+        $leilao = Leilao::factory()->create(['valor_inicial' => 100]);
+
+        $lance = Lance::factory()->create([
+            'usuario_id' => $user->id,
+            'leilao_id' => $leilao->id,
+            'valor' => 120,
+        ]);
+
+        $lanceData = [
+            'usuario_id' => $user->id,
+            'leilao_id' => $leilao->id,
+            'valor' => 150,
+        ];
+
+        $request = new LanceRequest($lanceData);
+
+        $repository = new EloquentLanceRepository();
+        $response = $repository->add($request);
+
+        $this->assertEquals('O usuário não pode dar dois lances seguidos', $response->getData()->mensagem);
+        $this->assertEquals(400, $response->status());
     }
 
 
