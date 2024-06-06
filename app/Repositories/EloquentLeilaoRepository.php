@@ -22,5 +22,18 @@ class EloquentLeilaoRepository implements ILeilaoRepository {
 
         return response()->json($leilao, 201);
     }
+
+    public function getLeilaoById(int $id)
+    {
+        $leilao = Leilao::find($id);
+
+        if (!$leilao) {
+            return response()->json([
+                'mensagem' => 'Leilão não encontrado'
+            ], 404);
+        }
+
+        return response()->json($leilao, 200);
+    }
 }
 

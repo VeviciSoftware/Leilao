@@ -86,7 +86,7 @@ class ApiLeilaoController extends Controller
 
     public function encerrarLeilao(Request $request, $id)
     {
-        $leilao = Leilao::findOrFail($id);
+        $leilao = $this->repository->getLeilaoById($id);
     
         $encerrador = new Encerrador($leilao);
         $encerrador->encerra();

@@ -4,6 +4,9 @@ namespace Tests\Unit;
 
 use App\Models\Leilao;
 use App\Services\Leilao\Encerrador;
+use App\Http\Controllers\Api\ApiLeilaoController;
+use App\Repositories\ILeilaoRepository;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
@@ -94,7 +97,7 @@ class ApiLeilaoControllerTest extends TestCase {
         });
     }
 
-    public function test_update_leilao(): void
+    public function test_put_leilao(): void
     {
         $leilaoCriado = Leilao::factory(1)->createOne();
 
@@ -159,34 +162,36 @@ class ApiLeilaoControllerTest extends TestCase {
     }
     
 
-    // public function testFinalizarLeilao()
-    // {
-    //     // Cria um mock para o modelo Leilao
-    //     $leilao = Mockery::mock(Leilao::class);
-    //     $leilao->shouldReceive('getAttribute')
-    //            ->with('finalizado')
-    //            ->andReturn(false); // Simula um leilão 'ABERTO'
-    //     $leilao->shouldReceive('setAttribute')
-    //            ->with('finalizado', true)
-    //            ->andReturn(true);
-    //     $leilao->shouldReceive('save')->once();
+    public function testEncerrarLeilao()
+    {
+        // Cria um mock para o modelo Leilao
+        $leilao = $this->createMock(Leilao::class);
+        $leilao->method('save')
+               ->willReturn(true);
     
-    //     // Cria um mock para a classe Encerrador
-    //     $encerrador = Mockery::mock(Encerrador::class, [$leilao]);
-    //     $encerrador->shouldReceive('encerra')->once()
-    //                ->andReturnUsing(function () use ($leilao) {
-    //                    $leilao->finalizado = true;
-    //                    $leilao->save();
-    //                });
+        // Cria um mock para a interface ILeilaoRepository
+        $repository = $this->createMock(ILeilaoRepository::class);
+        $repository->method('getLeilaoById')
+                   ->willReturn($leilao);
     
-    //     // Chama o método encerra() do mock Encerrador
-    //     $encerrador->encerra();
+        // Cria um mock para a classe Encerrador
+        $encerrador = $this->createMock(Encerrador::class);
+        $encerrador->method('encerra')
+                   ->willReturn(null);
     
-    //     // Verifica se o método save() do mock Leilao foi chamado
-    //     $leilao->shouldHaveReceived('save');
+        // Cria um mock para a classe Request
+        $request = $this->createMock(Request::class);
     
-    //     // Adiciona uma asserção do PHPUnit
-    //     $this->assertTrue($leilao->finalizado);
-    // }
+        // Cria uma instância do controlador com os mocks
+        $controller = new ApiLeilaoController($repository);
+    
+        // Chama o método encerrarLeilao
+        $response = $controller->encerrarLeilao($request, 1);
+    
+        // Verifica se a resposta é a esperada
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(['mensagem' => 'Leilão finalizado com sucesso'], $response->getData(true));
+    }
 
 }
+

@@ -29,7 +29,7 @@ class ApiLanceController extends Controller
     {
         $lance = $this->repository->add($request);
 
-        return response()->json($lance);
+        return response()->json($lance, 201);
         
     }
 
@@ -45,11 +45,18 @@ class ApiLanceController extends Controller
 
     public function update(Request $request, $id)
     {
+        $lance = Lance::findOrFail($id);
+        $lance->update($request->all());
+
+        return response()->json($lance, 200);
         
     }
 
     public function destroy($id)
     {
-        //
-    }   
+        $lance = Lance::findOrFail($id);
+        $lance->delete();
+
+        return response()->json(['mensagem' => 'Lance deletado com sucesso!'], 204);
+    }
 }

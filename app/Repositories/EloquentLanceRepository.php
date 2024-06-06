@@ -31,6 +31,14 @@ class EloquentLanceRepository implements ILanceRepository
             ], 400);
         }
 
+        //Verifica se o lance que será dado é maior que o valor inicial do leilão
+        $lanceMinimo = $this->getLanceMinimoLeilao($request->leilao_id);
+        if ($request->valor < $lanceMinimo) {
+            return response()->json([
+                'mensagem' => 'O valor do lance deve ser maior ou igual ao valor inicial do leilão'
+            ], 400);
+        }
+
         return Lance::create($request->all());
     }
 
