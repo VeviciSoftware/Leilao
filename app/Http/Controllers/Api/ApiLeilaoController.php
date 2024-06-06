@@ -59,17 +59,18 @@ class ApiLeilaoController extends Controller
         $leilao->update($request->all());
 
         return response()->json([
-            'mensagem' => 'Leilão atualizado com sucesso'
+            'mensagem' => 'Leilão atualizado com sucesso',
+            'leilao' => $leilao
         ]);
     }
 
     public function destroy($id)
     {
-        $leilao = Leilao::findOrFail($id);
+        $leilao = Leilao::find($id);
         $leilao->delete();
     
         return response()->json([
-            'mensagem' => 'Leilão deletado com sucesso'
+            'mensagem' => 'Leilão deletado com sucesso', 204
         ]);
     }
 

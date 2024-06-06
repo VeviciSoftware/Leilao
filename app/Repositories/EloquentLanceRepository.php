@@ -24,7 +24,7 @@ class EloquentLanceRepository implements ILanceRepository
         }
 
         //Verifica se o lance que será dado é maior que o maior lance atual
-        $maiorLance = $this->getMaiorValor($request->leilao_id);
+        $maiorLance = $this->getMaiorValorLance($request->leilao_id);
         if ($request->valor <= $maiorLance) {
             return response()->json([
                 'mensagem' => 'O valor do lance deve ser maior que o maior lance atual'
@@ -34,9 +34,15 @@ class EloquentLanceRepository implements ILanceRepository
         return Lance::create($request->all());
     }
 
-    public function getMaiorValor(int $leilao_id)
+    public function getMaiorValorLance(int $leilao_id)
     {
         return Lance::where('leilao_id', $leilao_id)->max('valor');
+    }
+
+    public function getLanceMinimoLeilao(int $leilao_id)
+    {
+        $leilao = Leilao::find($leilao_id);
+        return $leilao->valor_inicial;
     }
 
 }
