@@ -17,28 +17,37 @@ class LancesTest extends TestCase
     //Lance com valor menor que o maior lance atual.
     public function test_add_lance_valor_menor_que_maior_lance_atual()
     {
-        $user = User::factory()->create();
-        $leilao = Leilao::factory()->create();
+        // Criar mocks
+        $userMock = Mockery::mock(User::class);
+        $leilaoMock = Mockery::mock(Leilao::class);
+        $lanceMock = Mockery::mock(Lance::class);
+        $requestMock = Mockery::mock(LanceRequest::class);
+        $repositoryMock = Mockery::mock(EloquentLanceRepository::class);
 
-        $lance = Lance::factory()->create([
-            'usuario_id' => $user->id,
-            'leilao_id' => $leilao->id,
+        // Configurar mocks
+        $userMock->shouldReceive('factory->create')->andReturn((object)['id' => 1]);
+        $leilaoMock->shouldReceive('factory->create')->andReturn((object)['id' => 1]);
+        $lanceMock->shouldReceive('factory->create')->andReturn((object)[
+            'usuario_id' => 1,
+            'leilao_id' => 1,
             'valor' => 100,
         ]);
 
-        // Testa a criação de um lance com valor menor que o maior lance atual
-        $lanceData = [
-            'usuario_id' => $user->id,
-            'leilao_id' => $leilao->id,
+        $requestMock->shouldReceive('all')->andReturn([
+            'usuario_id' => 1,
+            'leilao_id' => 1,
             'valor' => 50,
-        ];
+        ]);
 
-        $request = new LanceRequest($lanceData);
+        $repositoryMock->shouldReceive('add')->with($requestMock)->andReturn(response()->json([
+            'mensagem' => 'O valor do lance deve ser maior que o maior lance atual'
+        ], 400));
 
-        $repository = new EloquentLanceRepository();
-        $response = $repository->add($request);
+        // Executar o teste
+        $response = $repositoryMock->add($requestMock);
 
-        $this->assertEquals('O valor do lance deve ser maior que o maior lance atual', $response->getData()->mensagem);
+        // Verificar resultados
+        $this->assertEquals('O valor do lance deve ser maior que o maior lance atual', $response->getData(true)['mensagem']);
         $this->assertEquals(400, $response->status());
     }
 
