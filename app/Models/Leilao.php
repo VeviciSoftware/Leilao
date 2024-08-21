@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Events\LeilaoGanhadorEvent;
 use User;
 
 class Leilao extends Model
@@ -21,6 +22,12 @@ class Leilao extends Model
     protected static function boot()
     {
         parent::boot();
+
+        static::updated(function ($leilao) {
+            if ($leilao->status === 'FINALIZADO') {
+                event(new LeilaoGanhadorEvent($leilao));
+            }
+        });
     }
 
     public function participante()
