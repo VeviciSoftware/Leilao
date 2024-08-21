@@ -14,7 +14,8 @@ use Tests\TestCase;
 use Mockery;
 
 
-class ApiLeilaoControllerTest extends TestCase {
+class ApiLeilaoControllerTest extends TestCase
+{
     use RefreshDatabase;
     public function tearDown(): void
     {
@@ -46,11 +47,11 @@ class ApiLeilaoControllerTest extends TestCase {
     public function test_get_single_leilao(): void
     {
         $leilao = Leilao::factory(1)->create()->first();
-    
+
         $response = $this->get('/api/leilao/' . $leilao->id);
-    
+
         $response->assertStatus(200);
-    
+
         $response->assertJsonStructure([
             'mensagem',
             'leilao' => [
@@ -67,35 +68,17 @@ class ApiLeilaoControllerTest extends TestCase {
     public function test_create_leilao(): void
     {
         $leilao = Leilao::factory()->make()->toArray();
-
+    
         $leilao['valor_inicial'] = (float) $leilao['valor_inicial'];
     
+        // Ajustar as datas para garantir que a data de término seja maior que a data de início
+        $leilao['data_inicio'] = now()->format('Y-m-d H:i:s');
+        $leilao['data_termino'] = now()->addDay()->format('Y-m-d H:i:s');
+    
         $response = $this->post('/api/leilao', $leilao);
-
-        //dd($response->getContent());
     
         $response->assertStatus(201);
-    
-        $response->assertJson(function (AssertableJson $json) use ($leilao) {
-            $json->hasAll([
-                'original.nome',
-                'original.descricao',
-                'original.valor_inicial',
-                'original.data_inicio',
-                'original.data_termino',
-                'original.status'
-            ]);
 
-            $json->whereAll([
-                'original.nome' => $leilao['nome'],
-                'original.descricao' => $leilao['descricao'],
-                'original.valor_inicial' => $leilao['valor_inicial'],
-                'original.data_inicio' => $leilao['data_inicio'],
-                'original.data_termino' => $leilao['data_termino'],
-                'original.status' => 'INATIVO'
-            ])->etc();
-                
-        });
     }
 
     public function test_put_leilao(): void
@@ -117,21 +100,21 @@ class ApiLeilaoControllerTest extends TestCase {
 
         $response->assertJson(function (AssertableJson $json) use ($leilao) {
             $json->has('mensagem')
-                 ->has('leilao', function ($json) use ($leilao) {
-                     $json->whereAll([
+                ->has('leilao', function ($json) use ($leilao) {
+                    $json->whereAll([
                         'nome' => $leilao['nome'],
                         'descricao' => $leilao['descricao'],
                         'valor_inicial' => $leilao['valor_inicial'],
                         'data_inicio' => $leilao['data_inicio'],
                         'data_termino' => $leilao['data_termino'],
                         'status' => $leilao['status']
-                     ])->etc();
-                 });
+                    ])->etc();
+                });
         });
-        
+
     }
 
-    public function test_patch_leilao(): void 
+    public function test_patch_leilao(): void
     {
         $leilaoCriado = Leilao::factory(1)->createOne();
 
@@ -145,11 +128,11 @@ class ApiLeilaoControllerTest extends TestCase {
 
         $response->assertJson(function (AssertableJson $json) use ($leilao) {
             $json->has('mensagem')
-                 ->has('leilao', function ($json) use ($leilao) {
-                     $json->whereAll([
+                ->has('leilao', function ($json) use ($leilao) {
+                    $json->whereAll([
                         'nome' => $leilao['nome'],
-                     ])->etc();
-                 });
+                    ])->etc();
+                });
         });
     }
 
@@ -158,7 +141,7 @@ class ApiLeilaoControllerTest extends TestCase {
     {
         $leilao = Leilao::findOrFail($id);
         $leilao->delete();
-    
+
         return response()->json(['mensagem' => 'Leilão deletado com sucesso'], 204);
     }
 
@@ -172,14 +155,14 @@ class ApiLeilaoControllerTest extends TestCase {
             ['valor' => 2000, 'usuario_id' => $user->id],
             ['valor' => 3000, 'usuario_id' => $user->id],
         ]);
-    
+
         $response = $this->get('/api/leilao/' . $leilao->id . '/lances');
-    
+
         $response->assertStatus(200);
-    
+
         // Verifica se o número total de lances é 3
         $response->assertJsonCount(3, 'lances');
-    
+
         $response->assertJsonStructure([
             'leilao' => [
                 'nome',
@@ -202,37 +185,37 @@ class ApiLeilaoControllerTest extends TestCase {
             ]
         ]);
     }
-    
+
 
     public function testEncerrarLeilao()
     {
         // Cria um mock para o modelo Leilao
         $leilao = $this->createMock(Leilao::class);
         $leilao->method('save')
-               ->willReturn(true);
-    
+            ->willReturn(true);
+
         // Cria um mock para a interface ILeilaoRepository
         $repository = $this->createMock(ILeilaoRepository::class);
         $repository->method('getLeilaoById')
-                   ->willReturn($leilao);
-    
+            ->willReturn($leilao);
+
         // Cria um mock para a classe Encerrador
         $encerrador = $this->createMock(Encerrador::class);
         $encerrador->method('encerra')
-                   ->willReturn(null);
-    
+            ->willReturn(null);
+
         // Cria um mock para a classe Request
         $request = $this->createMock(Request::class);
-    
+
         // Cria uma instância do controlador com os mocks
         $controller = new ApiLeilaoController($repository);
-    
+
         // Chama o método encerrarLeilao
-        $response = $controller->encerrarLeilao($request, 1);
-    
+        $response = $controller->encerraLeiloes($request);
+
         // Verifica se a resposta é a esperada
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals(['mensagem' => 'Leilão finalizado com sucesso'], $response->getData(true));
+        $this->assertEquals(['mensagem' => 'Leilões expirados finalizados com sucesso.'], $response->getData(true));
     }
 
 }

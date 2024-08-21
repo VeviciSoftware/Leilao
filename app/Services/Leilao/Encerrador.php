@@ -15,7 +15,21 @@ class Encerrador
 
     public function encerra()
     {
-        $this->leilao->finalizado = true;
-        $this->leilao->save();
+        if ($this->leilao->status === 'EXPIRADO') {
+            $this->leilao->status = 'FINALIZADO';
+            $this->leilao->save();
+        } else {
+            throw new \Exception('Somente leilões expirados podem ser finalizados.');
+        }
+    }
+
+    public static function encerraLeiloesExpirados()
+    {
+        $leiloesExpirados = Leilao::where('status', 'EXPIRADO')->get();
+
+        foreach ($leiloesExpirados as $leilao) {
+            $leilao->status = 'FINALIZADO';
+            $leilao->save();
+        }
     }
 }

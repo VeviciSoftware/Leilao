@@ -17,20 +17,20 @@ class EloquentLeilaoRepository implements ILeilaoRepository {
                 'mensagem' => 'Leilão já existe'
             ], 400);
         }
-
+    
         // Converte as datas para objetos DateTime
-        $dataInicio = \DateTime::createFromFormat('d-m-Y H:i:s', $request->data_inicio);
-        $dataTermino = \DateTime::createFromFormat('d-m-Y H:i:s', $request->data_termino);
-
+        $dataInicio = \DateTime::createFromFormat('Y-m-d H:i:s', $request->data_inicio);
+        $dataTermino = \DateTime::createFromFormat('Y-m-d H:i:s', $request->data_termino);
+    
         // Verifica se a data de término é maior que a data de início
         if ($dataTermino <= $dataInicio) {
             return response()->json([
                 'mensagem' => 'A data de término deve ser maior que a data de início'
             ], 400);
         }
-
+    
         $leilao = Leilao::create($request->all());
-
+    
         return response()->json($leilao, 201);
     }
 

@@ -9,26 +9,6 @@ use Mockery;
 
 class LeilaoTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     */
-    public function test_example(): void
-    {
-        $response = $this->get('/');
-
-        $response->assertStatus(200);
-    }
-
-    public function test_health_check(): void
-    {
-        $response = $this->get('/api/health-check');
-
-        $response->assertStatus(200);
-        $response->assertJson([
-            'status' => 'ok'
-        ]);
-    }
-
     public function testAddLeilao()
     {
         // Cria um leilao

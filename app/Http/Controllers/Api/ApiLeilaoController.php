@@ -113,15 +113,32 @@ class ApiLeilaoController extends Controller
         return response()->json(['leilao' => $leilao, 'lances' => $lances], 200);
     }
 
-    public function encerrarLeilao(Request $request, $id)
+    public function encerraLeiloes(Request $request)
     {
-        $leilao = $this->repository->getLeilaoById($id);
-    
-        $encerrador = new Encerrador($leilao);
-        $encerrador->encerra();
-    
-        return response()->json(['mensagem' => 'Leilão finalizado com sucesso'], 200);
+        try {
+            if ($request->has('id')) {
+                // Finaliza um leilão específico
+                $leilao = Leilao::find($request->id);
+
+                if (!$leilao) {
+                    return response()->json(['mensagem' => 'Leilão não encontrado'], 404);
+                }
+
+                $encerrador = new Encerrador($leilao);
+                $encerrador->encerra();
+
+                return response()->json(['mensagem' => 'Leilão finalizado com sucesso.'], 200);
+            } else {
+                // Finaliza todos os leilões expirados
+                Encerrador::encerraLeiloesExpirados();
+                return response()->json(['mensagem' => 'Leilões expirados finalizados com sucesso.'], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['mensagem' => $e->getMessage()], 400);
+        }
     }
+
+
 
     
 }

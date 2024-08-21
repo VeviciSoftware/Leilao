@@ -21,10 +21,6 @@ class Leilao extends Model
     protected static function boot()
     {
         parent::boot();
-
-        static::creating(function ($leilao) {
-            $leilao->status = 'INATIVO';
-        });
     }
 
     public function participante()
