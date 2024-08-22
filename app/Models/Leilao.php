@@ -17,7 +17,7 @@ class Leilao extends Model
 
     protected $table = 'leilao';
 
-    protected $fillable = ['nome', 'descricao', 'valor_inicial', 'data_inicio', 'data_termino', 'status'];
+    protected $fillable = ['nome', 'descricao', 'valor_inicial', 'data_inicio', 'data_termino', 'status', 'leilao_ganhador'];
 
     protected static function boot()
     {

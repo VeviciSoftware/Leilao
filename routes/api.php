@@ -38,6 +38,7 @@ Route::get('/lances/{id}', [ApiLanceController::class, 'show']);
 
 // Enpoint de encerramento de leilões expirados
 Route::post('/leilao/encerra-expirados', [ApiLeilaoController::class, 'encerraLeiloes']);
+Route::post('/leilao/{id}/finaliza', [ApiLeilaoController::class, 'finalizaLeilao']);
 
 // Route::get('/api/leilao/check-access', 'App\Http\Controllers\api\LeilaoApiController@checkAccess');
 // Route::get('/api/leilao', 'App\Http\Controllers\api\LeilaoApiController@index');

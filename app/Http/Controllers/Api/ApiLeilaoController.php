@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LeilaoRequest;
 use App\Repositories\ILeilaoRepository;
 use App\Services\Leilao\Encerrador;
+use App\Events\LeilaoGanhadorEvent;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Models\Leilao;
 
 class ApiLeilaoController extends Controller
@@ -136,6 +138,36 @@ class ApiLeilaoController extends Controller
         } catch (\Exception $e) {
             return response()->json(['mensagem' => $e->getMessage()], 400);
         }
+    }
+
+    //  Quando um leilão assumir o estado FINALIZADO, o ganhador do leilão (se houver) deve
+    //  receber um e-mail parabenizando-o pelo arremate.
+    public function finalizaLeilao($id)
+    {
+        $leilao = Leilao::find($id);
+    
+        if (!$leilao) {
+            return response()->json(['mensagem' => 'Leilão não encontrado'], 404);
+        }
+    
+        $lanceVencedor = $leilao->lances()->orderBy('valor', 'desc')->first();
+    
+        if ($lanceVencedor) {
+            Log::info('Lance vencedor encontrado', ['user_id' => $lanceVencedor->usuario_id]);
+            $leilao->leilao_ganhador = $lanceVencedor->usuario_id;
+        } else {
+            Log::info('Nenhum lance vencedor encontrado');
+        }
+    
+        // Alterar o status do leilão para FINALIZADO
+        $leilao->status = 'FINALIZADO';
+        $leilao->save();
+    
+        if ($lanceVencedor && $lanceVencedor->participante) {
+            return response()->json(['mensagem' => 'Parabéns ' . $lanceVencedor->participante->name . ', você ganhou o leilão'], 200);
+        }
+    
+        return response()->json(['mensagem' => 'Leilão encerrado com sucesso'], 200);
     }
 
 
