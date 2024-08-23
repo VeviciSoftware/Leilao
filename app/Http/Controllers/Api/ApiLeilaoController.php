@@ -164,20 +164,17 @@ class ApiLeilaoController extends Controller
                 Log::info('Nenhum lance vencedor encontrado', ['leilao_id' => $id]);
             }
     
-            // Verifica se o leilão está com o status ABERTO ou EXPIRADO. Somente leilões com esse status podem ser FINALIZADO.
             if (!$leilao->isAberto() && !$leilao->isExpirado()) {
                 Log::warning('Tentativa de finalizar leilão com status inválido', ['leilao_id' => $id, 'status' => $leilao->status]);
                 return response()->json(['mensagem' => 'Apenas leilões com status ABERTO e EXPIRADO podem ser FINALIZADOS. Status do leilão: ' . $leilao->status], 400);
             }
     
-            // Alterar o status do leilão para FINALIZADO
             $leilao->status = 'FINALIZADO';
             $leilao->save();
     
-            // Dispara o evento de envio de e-mail para o ganhador do leilão
             if ($lanceVencedor && $lanceVencedor->participante) {
                 event(new LeilaoGanhadorEvent($leilao));
-                Log::info('Evento de e-mail disparado para o ganhador do leilão', ['user_id' => $lanceVencedor->usuario_id]);
+                Log::info('ApiLeilaoController - Evento de e-mail disparado para o ganhador do leilão', ['user_id' => $lanceVencedor->usuario_id]);
             }
     
             if ($lanceVencedor && $lanceVencedor->participante) {

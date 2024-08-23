@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Log;
 
 class LeilaoGanhadorMail extends Mailable
 {
@@ -15,25 +16,20 @@ class LeilaoGanhadorMail extends Mailable
     public $leilao;
     public $ganhador;
 
-    /**
-     * Create a new message instance.
-     */
     public function __construct(Leilao $leilao, User $ganhador)
     {
         $this->leilao = $leilao;
         $this->ganhador = $ganhador;
     }
 
-    /**
-     * Build the message.
-     */
     public function build()
     {
-        return $this->subject('Parabéns pelo arremate!')
-                    ->view('emails.leilao_ganhador')
-                    ->with([
-                        'leilao' => $this->leilao,
-                        'ganhador' => $this->ganhador,
-                    ]);
+        Log::info("LeilaoGanhadorMail - Construindo e-mail para o ganhador do leilão: {$this->ganhador->email}");
+        
+        try {
+            return $this->markdown('mail.leilao_ganhador');
+        } catch (\Exception $e) {
+            Log::error("Erro ao construir o e-mail: {$e->getMessage()}");
+        }
     }
 }

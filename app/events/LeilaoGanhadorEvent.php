@@ -18,20 +18,12 @@ class LeilaoGanhadorEvent
 
     public $leilao;
 
-    /**
-     * Create a new event instance.
-     */
     public function __construct(Leilao $leilao)
     {
         $this->leilao = $leilao;
-        Log::info('Evento de leilão ganhador disparado');
+        Log::info('LeilaoGanhadorEvent - Evento de leilão ganhador disparado');
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
-     */
     public function broadcastOn(): array
     {
         return [
