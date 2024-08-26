@@ -7,8 +7,8 @@ use Tests\TestCase;
 use App\Repositories\EloquentLeilaoRepository;
 use Mockery;
 
-class LeilaoTest extends TestCase
-{
+class LeilaoTest extends TestCase {
+
     public function testAddLeilao()
     {
         // Cria um leilao
@@ -187,6 +187,92 @@ class LeilaoTest extends TestCase
         // Verifica se a validação falhou
         $this->assertTrue($validator->fails());
         $this->assertContains('data_inicio', array_keys($validator->failed()));
+    }
+
+    public function testLeilaoDeveTerDataTerminoValida() {
+        // Cria um leilao
+        $leilaoData = [
+            'nome' => 'Leilao de um carro',
+            'descricao' => 'Leilao de um carro usado',
+            'valor_inicial' => 1,
+            'data_inicio' => '2021-10-01',
+            'data_termino' => '2021-10-10',
+            'status' => 'INATIVO'
+        ];
+    
+        $request = new LeilaoRequest($leilaoData);
+    
+        // Cria um mock do EloquentLeilaoRepository
+        $repository = Mockery::mock(EloquentLeilaoRepository::class);
+        $repository->shouldReceive('add')
+            ->once()
+            ->with(Mockery::on(function ($arg) use ($request) {
+                return $arg == $request;
+            }))
+            ->andReturn((object) $leilaoData);
+    
+        $leilao = $repository->add($request);
+    
+        $this->assertEquals('Leilao de um carro', $leilao->nome);
+        $this->assertEquals('Leilao de um carro usado', $leilao->descricao);
+        $this->assertEquals(1, $leilao->valor_inicial);
+        $this->assertEquals('2021-10-01', $leilao->data_inicio);
+        $this->assertEquals('2021-10-10', $leilao->data_termino);
+        $this->assertEquals('INATIVO', $leilao->status);
+    }
+
+    public function testLeilaoDeveFalharComDataTerminoInvalida()
+    {
+        // Cria um leilao com data de término inválida
+        $leilaoData = [
+            'nome' => 'Leilao de um carro',
+            'descricao' => 'Leilao de um carro usado',
+            'valor_inicial' => 1,
+            'data_inicio' => '2021-10-01',
+            'data_termino' => 'data-invalida',
+            'status' => 'INATIVO'
+        ];
+    
+        $request = new LeilaoRequest($leilaoData);
+    
+        // Valida o request
+        $validator = \Validator::make($request->all(), $request->rules());
+    
+        // Verifica se a validação falhou
+        $this->assertTrue($validator->fails());
+        $this->assertContains('data_termino', array_keys($validator->failed()));
+    }
+
+    public function testLeilaoDeveTerDataTerminoMaiorQueDataInicio() {
+        // Cria um leilao
+        $leilaoData = [
+            'nome' => 'Leilao de um carro',
+            'descricao' => 'Leilao de um carro usado',
+            'valor_inicial' => 1,
+            'data_inicio' => '2021-10-01',
+            'data_termino' => '2021-10-10',
+            'status' => 'INATIVO'
+        ];
+    
+        $request = new LeilaoRequest($leilaoData);
+    
+        // Cria um mock do EloquentLeilaoRepository
+        $repository = Mockery::mock(EloquentLeilaoRepository::class);
+        $repository->shouldReceive('add')
+            ->once()
+            ->with(Mockery::on(function ($arg) use ($request) {
+                return $arg == $request;
+            }))
+            ->andReturn((object) $leilaoData);
+    
+        $leilao = $repository->add($request);
+    
+        $this->assertEquals('Leilao de um carro', $leilao->nome);
+        $this->assertEquals('Leilao de um carro usado', $leilao->descricao);
+        $this->assertEquals(1, $leilao->valor_inicial);
+        $this->assertEquals('2021-10-01', $leilao->data_inicio);
+        $this->assertEquals('2021-10-10', $leilao->data_termino);
+        $this->assertEquals('INATIVO', $leilao->status);
     }
 
     

@@ -17,6 +17,13 @@ class EloquentLeilaoRepository implements ILeilaoRepository {
                 'mensagem' => 'Leilão já existe'
             ], 400);
         }
+
+        //Verifica se valor_inicial é maior que 0
+        if ($request->valor_inicial <= 0) {
+            return response()->json([
+                'mensagem' => 'O valor inicial deve ser maior que 0'
+            ], 400);
+        }
     
         // Converte as datas para objetos DateTime
         $dataInicio = \DateTime::createFromFormat('Y-m-d H:i:s', $request->data_inicio);

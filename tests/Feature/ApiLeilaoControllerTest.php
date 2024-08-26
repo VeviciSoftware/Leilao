@@ -87,7 +87,7 @@ class ApiLeilaoControllerTest extends TestCase
 
         $leilao = [
             'nome' => 'Leilão de um Leksus',
-            'descricao' => 'Leksus é um cara bacana, ele gosta de sentar na cana, do Murilo',
+            'descricao' => 'Leksus é um cara bacana.',
             'valor_inicial' => 1000,
             'data_inicio' => '2021-10-10',
             'data_termino' => '2021-10-20',
