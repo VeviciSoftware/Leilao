@@ -11,44 +11,45 @@ class UserTest extends TestCase
 {
     public function testNomeDeveTerNoMinimo3Caracteres()
     {
-        $user = Mockery::mock(User::class);
+        $user = new User();
         $user->name = 'Jo';
         $this->assertFalse($user->isValid());
     }
 
     public function testNomeDeveTerNoMaximo255Caracteres()
     {
-        $user = Mockery::mock(User::class);
+        $user = new User();
         $user->name = str_repeat('a', 256);
         $this->assertFalse($user->isValid());
     }
 
     public function testEmailDeveSerValido()
     {
-        $user = Mockery::mock(User::class);
-        $user->email = 'email_invalido';
+        $user = new User();
+        $user->email = 'email_invalidoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo';
         $this->assertFalse($user->isValid());
     }
 
     public function testSenhaDeveTerNoMinimo8Caracteres()
     {
-        $user = Mockery::mock(User::class);
+        $user = new User();
         $user->password = '1234567';
         $this->assertFalse($user->isValid());
     }
 
     public function testSenhaDeveTerNoMaximo16Caracteres()
     {
-        $user = Mockery::mock(User::class);
-        $user->password = str_repeat('a', 17);
+        $user = new User();
+        $user->password = '12345678901234567';
         $this->assertFalse($user->isValid());
     }
 
     public function testUsuarioDeveSerInvalido()
     {
-        $user = Mockery::mock(User::class);
+        $user = new User();
         $user->name = 'Jo';
-        $user->email = 'email_invalido';
+        $user->email = 'email_invalidooooooooooooooooooooooooooooooooooooooooo';
+
         $this->assertFalse($user->isValid());
     }
 
