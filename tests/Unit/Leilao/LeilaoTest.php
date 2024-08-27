@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Unit\Leilao;
 
 use App\Http\Requests\LeilaoRequest;
 use Tests\TestCase;
