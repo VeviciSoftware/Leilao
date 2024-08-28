@@ -39,10 +39,21 @@ class ApiUsersController extends Controller
         }
     }
 
-    public function update(UserRequest $request, $id) {
+    public function update(UserRequest $request, $id)
+    {
         try {
             $user = User::findOrFail($id);
-            $user->update($request->all());
+            $data = $request->all();
+    
+            // Verifica se o campo 'password' está presente e não está vazio
+            if (isset($data['password']) && !empty($data['password'])) {
+                $data['password'] = bcrypt($data['password']);
+            } else {
+                // Remove o campo 'password' para não sobrescrever com um valor vazio
+                unset($data['password']);
+            }
+    
+            $user->update($data);
             return response()->json(['mensagem' => 'Usuário atualizado com sucesso!', 'user' => $user], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['mensagem' => 'Usuário não encontrado!'], 404);
@@ -53,7 +64,7 @@ class ApiUsersController extends Controller
         try {
             $user = User::findOrFail($id);
             $user->delete();
-            return response()->json(['mensagem' => 'Usuário deletado com sucesso!'], 200);
+            return response()->json(['mensagem' => 'Usuário deletado com sucesso!'], 204);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['mensagem' => 'Usuário não encontrado!'], 404);
         }

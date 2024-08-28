@@ -49,6 +49,7 @@ class UserTest extends TestCase
         $user = new User();
         $user->name = 'Jo';
         $user->email = 'email_invalidooooooooooooooooooooooooooooooooooooooooo';
+        $user->password = '1234567';
 
         $this->assertFalse($user->isValid());
     }

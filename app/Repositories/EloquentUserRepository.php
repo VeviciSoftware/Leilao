@@ -13,5 +13,7 @@ class EloquentUserRepository implements IUserRepository
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
         $user->save();
+
+        return $user;
     }
 }
