@@ -275,11 +275,71 @@ class LeilaoTest extends TestCase {
         $this->assertEquals('INATIVO', $leilao->status);
     }
 
+    // Nome não pode ser vazio ou nulo
+    public function testLeilaoDeveTerNomePreenchido() {
+        // Cria um leilao
+        $leilaoData = [
+            'nome' => '',
+            'descricao' => 'Leilao de um carro usado',
+            'valor_inicial' => 1,
+            'data_inicio' => '2021-10-01',
+            'data_termino' => '2021-10-10',
+            'status' => 'INATIVO'
+        ];
     
-
+        $request = new LeilaoRequest($leilaoData);
     
+        // Valida o request
+        $validator = \Validator::make($request->all(), $request->rules());
+    
+        // Verifica se a validação falhou
+        $this->assertTrue($validator->fails());
+        $this->assertContains('nome', array_keys($validator->failed()));
+    }
 
+    // Leilão não pode ter descrição vazia ou nula
+    public function testLeilaoDeveTerDescricaoPreenchida() {
+        // Cria um leilao
+        $leilaoData = [
+            'nome' => 'Leilao de um carro',
+            'descricao' => '',
+            'valor_inicial' => 1,
+            'data_inicio' => '2021-10-01',
+            'data_termino' => '2021-10-10',
+            'status' => 'INATIVO'
+        ];
+    
+        $request = new LeilaoRequest($leilaoData);
+    
+        // Valida o request
+        $validator = \Validator::make($request->all(), $request->rules());
+    
+        // Verifica se a validação falhou
+        $this->assertTrue($validator->fails());
+        $this->assertContains('descricao', array_keys($validator->failed()));
+    }
 
+    // Status do leilão deve ser válido
+    public function testLeilaoDeveTerStatusValido() {
+        // Cria um leilao
+        $leilaoData = [
+            'nome' => 'Leilao de um carro',
+            'descricao' => 'Leilao de um carro usado',
+            'valor_inicial' => 1,
+            'data_inicio' => '2021-10-01',
+            'data_termino' => '2021-10-10',
+            'status' => 'INVALIDO'
+        ];
+    
+        $request = new LeilaoRequest($leilaoData);
+    
+        // Valida o request
+        $validator = \Validator::make($request->all(), $request->rules());
+    
+        // Verifica se a validação falhou
+        $this->assertTrue($validator->fails());
+        $this->assertContains('status', array_keys($validator->failed()));
+    }
 
 
     

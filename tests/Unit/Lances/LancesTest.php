@@ -14,6 +14,69 @@ use Mockery;
 
 class LancesTest extends TestCase
 {
+
+    //Uusário não pode ser nulo.
+    public function test_usuario_nao_pode_ser_nulo() {
+        $leilao = Leilao::factory()->create(['valor_inicial' => 100]);
+
+        // Testa a criação de um lance com usuário nulo
+        $lanceData = [
+            'usuario_id' => null,
+            'leilao_id' => $leilao->id,
+            'valor' => 100,
+        ];
+
+        $request = new LanceRequest($lanceData);
+
+        $repository = new EloquentLanceRepository();
+        $response = $repository->add($request);
+
+        $this->assertEquals('Usuário não encontrado', $response->getData()->mensagem);
+        $this->assertEquals(404, $response->status());
+    }
+
+    //Leilão não pode ser nulo.
+    public function test_leilao_nao_pode_ser_nulo() {
+        $user = User::factory()->create();
+
+        // Testa a criação de um lance com leilão nulo
+        $lanceData = [
+            'usuario_id' => $user->id,
+            'leilao_id' => null,
+            'valor' => 100,
+        ];
+
+        $request = new LanceRequest($lanceData);
+
+        $repository = new EloquentLanceRepository();
+        $response = $repository->add($request);
+
+        $this->assertEquals('O leilão não existe. Não é possível realizar lances.', $response->getData()->mensagem);
+        $this->assertEquals(400, $response->status());
+    }
+
+    //Lance deve ser maior que zero.
+    public function test_lance_deve_ser_maior_que_zero() {
+        $user = User::factory()->create();
+        $leilao = Leilao::factory()->create(['valor_inicial' => 100]);
+
+        // Testa a criação de um lance com valor zero
+        $lanceData = [
+            'usuario_id' => $user->id,
+            'leilao_id' => $leilao->id,
+            'valor' => 0,
+        ];
+
+        $request = new LanceRequest($lanceData);
+
+        $repository = new EloquentLanceRepository();
+        $response = $repository->add($request);
+
+        $this->assertEquals('O valor do lance deve ser maior que zero', $response->getData()->mensagem);
+        $this->assertEquals(400, $response->status());
+    }
+
+
     //Lance com valor menor que o maior lance atual.
     public function test_add_lance_valor_menor_que_maior_lance_atual()
     {

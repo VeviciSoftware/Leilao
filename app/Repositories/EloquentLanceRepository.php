@@ -23,6 +23,13 @@ class EloquentLanceRepository implements ILanceRepository
             ], 400);
         }
 
+        //Verifica se o valor do lance é maior que zero
+        if ($request->valor <= 0) {
+            return response()->json([
+                'mensagem' => 'O valor do lance deve ser maior que zero'
+            ], 400);
+        }
+
         //Verifica se o lance que será dado é maior que o maior lance atual
         $maiorLance = $this->getMaiorValorLance($request->leilao_id);
         if ($request->valor <= $maiorLance) {
