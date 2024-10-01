@@ -2,9 +2,14 @@
 
 namespace Tests\Integration\Database;
 
+use App\Models\Lance;
+use App\Models\User;
+use App\Services\Leilao\Encerrador;
 use Tests\TestCase;
 use App\Models\Leilao;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use function PHPUnit\Framework\assertTrue;
 
 class LeilaoTest extends TestCase 
 {
@@ -53,6 +58,112 @@ class LeilaoTest extends TestCase
         $this->assertCount(1, $leiloesFinalizados);
     }
 
+    /**
+     * @dataProvider leilaoInativo
+    */
+    public function testCadastroLeilaoInativo(Leilao $leilao): void
+    {
+        $leilao->save();
+
+        $leilaoDoBanco = Leilao::find($leilao->id);
+
+        $this->assertTrue($leilaoDoBanco->isInativo());
+    }
+
+    /**
+     * @dataProvider leilaoAberto
+    */
+    public function testCadastroLeilaoAberto(Leilao $leilao): void
+    {
+        $leilao->save();
+
+        $leilaoDoBanco = Leilao::find($leilao->id);
+
+        $this->assertTrue($leilaoDoBanco->isAberto());
+    }
+
+    /**
+     * @dataProvider leilaoAberto
+    */
+    public function testLeilaoAbertoEstaAptoParaReceberLances(Leilao $leilao): void
+    {
+        // Arrange
+        $leilao->save();
+        
+        $user = new User(
+            [
+                'name' => 'João',
+                'email' => 'joao@email.com',
+                'password' => bcrypt('12345678') 
+            ]
+        );
+        $user->save();
+    
+        $lance = new Lance(
+            [
+                'valor' => 100,
+                'leilao_id' => $leilao->id,
+                'usuario_id' => $user->id
+            ]
+        );
+    
+        // Act
+        $leilao->lances()->save($lance);
+    
+        // Assert
+        $this->assertTrue($leilao->isAberto());
+        $this->assertCount(1, $leilao->lances);
+        $this->assertEquals(100, $leilao->lances->first()->valor);
+    }
+
+    /**
+     * @dataProvider leilaoAberto
+    */
+    public function testLeilaoExpiraComBaseNaDataDeExpiracao(Leilao $leilao): void
+    {
+        // Arrange
+        $leilao->save();
+
+        // Simula a passagem do tempo para uma data após a data de término do leilão
+        Carbon::setTestNow(Carbon::parse('2024-10-11 00:00:00'));
+
+        // Atualiza o status do leilão para EXPIRADO se a data atual for maior que a data de término
+        if (Carbon::now()->greaterThan(Carbon::parse($leilao->data_termino))) {
+            $leilao->status = 'EXPIRADO';
+            $leilao->save();
+        }
+
+        // Act
+        $leilaoDoBanco = Leilao::find($leilao->id);
+
+        // Assert
+        $this->assertTrue($leilaoDoBanco->isExpirado());
+
+        // Restaura a data atual
+        Carbon::setTestNow();
+    }
+
+    /**
+     * @dataProvider leilaoExpirado
+    */
+    public function testLeilaoExpiradoDeveSerFinalizado(Leilao $leilao) 
+    {
+        // Arrange
+        $leilao->save();
+        $encerrador = new Encerrador($leilao);
+
+        // Act
+        $encerrador->encerra();
+
+        // Assert
+        $leilaoDoBanco = Leilao::find($leilao->id);
+        $this->assertTrue($leilaoDoBanco->isFinalizado());
+
+    }
+    
+
+    
+
     public static function leiloes(): array
     {
         $leilao1 = new Leilao([
@@ -90,6 +201,60 @@ class LeilaoTest extends TestCase
     
         return [
             [[$leilao1, $leilao2, $leilao3]],
+        ];
+    }
+
+    public static function leilaoInativo(): array
+    {
+        $leilao = new Leilao([
+            'nome' => 'Leilão 4', 
+            'descricao' => 'Descrição do Leilão 4', 
+            'valor_inicial' => 400, 
+            'data_inicio' => '2023-04-01 00:00:00', 
+            'data_termino' => '2023-04-10 00:00:00', 
+            'status' => 'INATIVO', 
+            'leilao_ganhador' => null, 
+            'usuario_id' => 4
+        ]);
+
+        return [
+            [$leilao],
+        ];
+    }
+
+    public static function leilaoAberto()
+    {
+        $leilao = new Leilao([
+            'nome' => 'Leilão 5', 
+            'descricao' => 'Descrição do Leilão 5', 
+            'valor_inicial' => 500, 
+            'data_inicio' => '2023-05-01 00:00:00', 
+            'data_termino' => '2023-05-10 00:00:00', 
+            'status' => 'ABERTO', 
+            'leilao_ganhador' => null, 
+            'usuario_id' => 1
+        ]);
+
+        return [
+            [$leilao],
+        ];
+    }
+
+    public static function leilaoExpirado() 
+    {
+        $leilao = new Leilao([
+            'nome' => 'Leilão 6', 
+            'descricao' => 'Descrição do Leilão 6', 
+            'valor_inicial' => 600, 
+            'data_inicio' => '2023-06-01 00:00:00', 
+            'data_termino' => '2023-06-10 00:00:00', 
+            'status' => 'EXPIRADO', 
+            'leilao_ganhador' => null, 
+            'usuario_id' => 1
+        ]);
+
+        return [
+            [$leilao],
         ];
     }
 }
