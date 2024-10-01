@@ -8,34 +8,19 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UserTest extends TestCase
 {
-    private static \PDO $pdo;
-
-    public static function setUpBeforeClass(): void
-    {
-        self::$pdo = new \PDO('sqlite::memory:');
-        self::$pdo->exec('CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT, password TEXT);');
-    }
-
-    protected function setUp(): void
-    {
-        self::$pdo->beginTransaction();
-    }
+    use RefreshDatabase;
 
     /**
      * @dataProvider users
     */
     public function testCreateUser($name, $email, $password)
     {
-        $stmt = self::$pdo->prepare('INSERT INTO users (name, email, password) VALUES (?, ?, ?)');
-        $stmt->execute([$name, $email, $password]);
+        $user = User::create(['name' => $name, 'email' => $email, 'password' => bcrypt($password)]);
 
-        $stmt = self::$pdo->query('SELECT * FROM users WHERE email = \'' . $email . '\'');
-        $user = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        $this->assertNotEmpty($user);
-        $this->assertEquals($name, $user['name']);
-        $this->assertEquals($email, $user['email']);
-        $this->assertEquals($password, $user['password']);
+        $this->assertDatabaseHas('users', [
+            'name' => $name,
+            'email' => $email,
+        ]);
     }
 
     /**
@@ -43,18 +28,17 @@ class UserTest extends TestCase
      */
     public function testEditUser($name, $email, $password)
     {
-        $user = User::create(['name' => $name, 'email' => $email, 'password' => $password]);
+        $user = User::create(['name' => $name, 'email' => $email, 'password' => bcrypt($password)]);
 
         $newName = 'Novo Nome';
         $newEmail = 'novoemail@email.com';
         $newPassword = 'novasenha';
 
-        $user->update(['name' => $newName, 'email' => $newEmail, 'password' => $newPassword]);
+        $user->update(['name' => $newName, 'email' => $newEmail, 'password' => bcrypt($newPassword)]);
 
         $this->assertDatabaseHas('users', [
             'name' => $newName,
             'email' => $newEmail,
-            'password' => $newPassword,
         ]);
     }
 
@@ -63,14 +47,13 @@ class UserTest extends TestCase
     */
     public function testGetUser($name, $email, $password)
     {
-        $user = User::create(['name' => $name, 'email' => $email, 'password' => $password]);
+        $user = User::create(['name' => $name, 'email' => $email, 'password' => bcrypt($password)]);
 
         $retrievedUser = User::where('email', $email)->first();
 
         $this->assertNotNull($retrievedUser);
         $this->assertEquals($name, $retrievedUser->name);
         $this->assertEquals($email, $retrievedUser->email);
-        $this->assertEquals($password, $retrievedUser->password);
     }
 
     /**
@@ -79,8 +62,8 @@ class UserTest extends TestCase
     public function testListUsers() 
     {
         $users = [
-            ['name' => 'João', 'email' => 'joao@gmail.com', 'password' => '12345678'],
-            ['name' => 'Maria', 'email' => 'maria@email.com', 'password' => '12345678'],
+            ['name' => 'João', 'email' => 'joao@gmail.com', 'password' => bcrypt('12345678')],
+            ['name' => 'Maria', 'email' => 'maria@email.com', 'password' => bcrypt('12345678')],
         ];
 
         foreach ($users as $user) {

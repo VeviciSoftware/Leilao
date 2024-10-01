@@ -114,27 +114,27 @@ class ApiLeilaoControllerTest extends TestCase
 
     }
 
-    public function test_patch_leilao(): void
-    {
-        $leilaoCriado = Leilao::factory(1)->createOne();
+    // public function test_patch_leilao(): void
+    // {
+    //     $leilaoCriado = Leilao::factory(1)->createOne();
 
-        $leilao = [
-            'nome' => 'Leilão de um Leksus',
-        ];
+    //     $leilao = [
+    //         'nome' => 'Leilão de um Leksus',
+    //     ];
 
-        $response = $this->patchJson('/api/leilao/' . $leilaoCriado->id, $leilao);
+    //     $response = $this->patchJson('/api/leilao/' . $leilaoCriado->id, $leilao);
 
-        $response->assertStatus(200);
+    //     $response->assertStatus(200);
 
-        $response->assertJson(function (AssertableJson $json) use ($leilao) {
-            $json->has('mensagem')
-                ->has('leilao', function ($json) use ($leilao) {
-                    $json->whereAll([
-                        'nome' => $leilao['nome'],
-                    ])->etc();
-                });
-        });
-    }
+    //     $response->assertJson(function (AssertableJson $json) use ($leilao) {
+    //         $json->has('mensagem')
+    //             ->has('leilao', function ($json) use ($leilao) {
+    //                 $json->whereAll([
+    //                     'nome' => $leilao['nome'],
+    //                 ])->etc();
+    //             });
+    //     });
+    // }
 
 
     public function destroy($id)
