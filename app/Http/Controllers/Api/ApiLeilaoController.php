@@ -7,6 +7,7 @@ use App\Http\Requests\LeilaoRequest;
 use App\Repositories\ILeilaoRepository;
 use App\Services\Leilao\Encerrador;
 use App\Events\LeilaoGanhadorEvent;
+use App\Services\Leilao\LeilaoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Models\Leilao;
@@ -14,7 +15,7 @@ use App\Models\Leilao;
 class ApiLeilaoController extends Controller
 {
 
-    public function __construct(private ILeilaoRepository $repository)
+    public function __construct(private ILeilaoRepository $repository, private LeilaoService $leilaoService)
     {
 
     }
@@ -145,47 +146,9 @@ class ApiLeilaoController extends Controller
     //  receber um e-mail parabenizando-o pelo arremate.
     public function finalizaLeilao($id)
     {
-        try {
-            Log::info('Iniciando finalização do leilão', ['leilao_id' => $id]);
-    
-            $leilao = Leilao::find($id);
-    
-            if (!$leilao) {
-                Log::warning('Leilão não encontrado', ['leilao_id' => $id]);
-                return response()->json(['mensagem' => 'Leilão não encontrado'], 404);
-            }
-    
-            $lanceVencedor = $leilao->lances()->orderBy('valor', 'desc')->first();
-    
-            if ($lanceVencedor) {
-                Log::info('Lance vencedor encontrado', ['user_id' => $lanceVencedor->usuario_id]);
-                $leilao->leilao_ganhador = $lanceVencedor->usuario_id;
-            } else {
-                Log::info('Nenhum lance vencedor encontrado', ['leilao_id' => $id]);
-            }
-    
-            if (!$leilao->isAberto() && !$leilao->isExpirado()) {
-                Log::warning('Tentativa de finalizar leilão com status inválido', ['leilao_id' => $id, 'status' => $leilao->status]);
-                return response()->json(['mensagem' => 'Apenas leilões com status ABERTO e EXPIRADO podem ser FINALIZADOS. Status do leilão: ' . $leilao->status], 400);
-            }
-    
-            $leilao->status = 'FINALIZADO';
-            $leilao->save();
-    
-            if ($lanceVencedor && $lanceVencedor->participante) {
-                event(new LeilaoGanhadorEvent($leilao));
-                Log::info('ApiLeilaoController - Evento de e-mail disparado para o ganhador do leilão', ['user_id' => $lanceVencedor->usuario_id]);
-            }
-    
-            if ($lanceVencedor && $lanceVencedor->participante) {
-                return response()->json(['mensagem' => 'Parabéns ' . $lanceVencedor->participante->name . ', você ganhou o leilão. Confira sua caixa de e-mail.'], 200);
-            }
-    
-            return response()->json(['mensagem' => 'Leilão encerrado com sucesso'], 200);
-        } catch (\Exception $e) {
-            Log::error('Erro ao finalizar leilão', ['error' => $e->getMessage(), 'leilao_id' => $id]);
-            return response()->json(['mensagem' => 'Ocorreu um erro ao finalizar o leilão. Por favor, tente novamente mais tarde.'], 500);
-        }
+        $resultado = $this->leilaoService->finalizaLeilao($id);
+
+        return response()->json(['mensagem' => $resultado['mensagem']], $resultado['status']);
     }
 
 

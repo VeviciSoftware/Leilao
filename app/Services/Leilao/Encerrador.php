@@ -15,11 +15,11 @@ class Encerrador
 
     public function encerra()
     {
-        if ($this->leilao->status === 'EXPIRADO') {
+        if ($this->leilao->status === 'EXPIRADO' || $this->leilao->status === 'ABERTO') {
             $this->leilao->status = 'FINALIZADO';
             $this->leilao->save();
         } else {
-            throw new \Exception('Somente leilões expirados podem ser finalizados.');
+            throw new \Exception('Somente leilões expirados ou abertos podem ser finalizados.');
         }
     }
 
