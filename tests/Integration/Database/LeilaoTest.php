@@ -258,6 +258,142 @@ class LeilaoTest extends TestCase
         $this->assertEquals('FINALIZADO', $leilaoDoBanco->status);
         $this->assertCount(2, $leilaoDoBanco->lances);
         $this->assertEquals(150, $leilaoDoBanco->lances->first()->valor);
+        $this->assertEquals(200, $leilaoDoBanco->lances->last()->valor);
+    }
+
+    public function testCreateLeilao()
+    {
+        $nome = 'Leilão de Arte';
+        $descricao = 'Leilão de obras de arte';
+        $valor_inicial = 1000.00;
+        $data_inicio = '2023-10-01 10:00:00';
+        $data_termino = '2023-10-10 18:00:00';
+        $status = 'ABERTO';
+        $leilao_ganhador = null;
+
+        // Arrange
+        $leilao = new Leilao([
+            'nome' => $nome,
+            'descricao' => $descricao,
+            'valor_inicial' => $valor_inicial,
+            'data_inicio' => $data_inicio,
+            'data_termino' => $data_termino,
+            'status' => $status,
+            'leilao_ganhador' => $leilao_ganhador,
+        ]);
+
+        // Act
+        $leilao->save();
+
+        // Assert
+        $leilaoDoBanco = Leilao::find($leilao->id);
+        $this->assertEquals($nome, $leilaoDoBanco->nome);
+        $this->assertEquals($descricao, $leilaoDoBanco->descricao);
+        $this->assertEquals($valor_inicial, $leilaoDoBanco->valor_inicial);
+        $this->assertEquals($data_inicio, $leilaoDoBanco->data_inicio);
+        $this->assertEquals($data_termino, $leilaoDoBanco->data_termino);
+        $this->assertEquals($status, $leilaoDoBanco->status);
+        $this->assertEquals($leilao_ganhador, $leilaoDoBanco->leilao_ganhador);
+    }
+
+    public function testEditLeilao() 
+    {
+        // Arrange
+        $leilao = new Leilao([
+            'nome' => 'Leilão de Arte',
+            'descricao' => 'Leilão de obras de arte',
+            'valor_inicial' => 1000.00,
+            'data_inicio' => '2023-10-01 10:00:00',
+            'data_termino' => '2023-10-10 18:00:00',
+            'status' => 'ABERTO',
+            'leilao_ganhador' => null,
+        ]);
+        $leilao->save();
+
+        // Act
+        $leilao->nome = 'Leilão de Arte Moderna';
+        $leilao->descricao = 'Leilão de obras de arte moderna';
+        $leilao->valor_inicial = 2000.00;
+        $leilao->data_inicio = '2023-10-01 10:00:00';
+        $leilao->data_termino = '2023-10-10 18:00:00';
+        $leilao->status = 'ABERTO';
+        $leilao->leilao_ganhador = null;
+        $leilao->save();
+
+        // Assert
+        $leilaoDoBanco = Leilao::find($leilao->id);
+        $this->assertEquals('Leilão de Arte Moderna', $leilaoDoBanco->nome);
+        $this->assertEquals('Leilão de obras de arte moderna', $leilaoDoBanco->descricao);
+        $this->assertEquals(2000.00, $leilaoDoBanco->valor_inicial);
+        $this->assertEquals('2023-10-01 10:00:00', $leilaoDoBanco->data_inicio);
+        $this->assertEquals('2023-10-10 18:00:00', $leilaoDoBanco->data_termino);
+        $this->assertEquals('ABERTO', $leilaoDoBanco->status);
+        $this->assertEquals(null, $leilaoDoBanco->leilao_ganhador);
+    }
+
+    /**
+     * @dataProvider leilaoAberto
+     */
+    public function testDeleteLeilao(Leilao $leilao)
+    {
+        // Arrange
+        $leilao->save();
+
+        // Act
+        $leilao->delete();
+
+        // Assert
+        $leilaoDoBanco = Leilao::find($leilao->id);
+        $this->assertNull($leilaoDoBanco);
+    }
+
+    /**
+     * @dataProvider leilaoAberto
+     */
+    public function testGetLeilao(Leilao $leilao): void
+    {
+        // Arrange
+        $leilao->save();
+    
+        // Act
+        $leilaoDoBanco = Leilao::find($leilao->id);
+    
+        // Assert
+        $this->assertEquals('Leilão 5', $leilaoDoBanco->nome);
+        $this->assertEquals('Descrição do Leilão 5', $leilaoDoBanco->descricao);
+        $this->assertEquals(500, $leilaoDoBanco->valor_inicial);
+        $this->assertEquals('2023-05-01 00:00:00', $leilaoDoBanco->data_inicio);
+        $this->assertEquals('2023-05-10 00:00:00', $leilaoDoBanco->data_termino);
+        $this->assertEquals('ABERTO', $leilaoDoBanco->status);
+        $this->assertEquals(null, $leilaoDoBanco->leilao_ganhador);
+    }
+
+    /**
+     * @dataProvider leiloes
+     */
+    public function testGetLeiloesDoBanco(array $leiloes): void
+    {
+        // Arrange
+        foreach ($leiloes as $leilao) {
+            $leilao->save();
+        }
+
+        // Act
+        $leiloesDoBanco = Leilao::all();
+
+        // Assert
+        $this->assertCount(count($leiloes), $leiloesDoBanco);
+
+        foreach ($leiloes as $index => $leilao) {
+            $this->assertEquals($leilao->nome, $leiloesDoBanco[$index]->nome);
+            $this->assertEquals($leilao->descricao, $leiloesDoBanco[$index]->descricao);
+            $this->assertEquals($leilao->valor_inicial, $leiloesDoBanco[$index]->valor_inicial);
+            $this->assertEquals($leilao->data_inicio, $leiloesDoBanco[$index]->data_inicio);
+            $this->assertEquals($leilao->data_termino, $leiloesDoBanco[$index]->data_termino);
+            $this->assertEquals($leilao->status, $leiloesDoBanco[$index]->status);
+            $this->assertEquals($leilao->leilao_ganhador, $leiloesDoBanco[$index]->leilao_ganhador);
+            $this->assertEquals($leilao->usuario_id, $leiloesDoBanco[$index]->usuario_id);
+        }
     }
 
 
