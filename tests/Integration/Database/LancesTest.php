@@ -32,18 +32,22 @@ class LancesTest extends TestCase
         $user->save();
 
         // Act
+        $exceptionMessage = '';
         try {
             $lance = new Lance();
             $lance->leilao_id = $leilao->id;
             $lance->usuario_id = $user->id;
             $lance->valor = 999;
             $lance->save();
+            
         } catch (\Exception $e) {
             $this->assertTrue(true);
+            $exceptionMessage = $e->getMessage();
         }
 
         // Assert
         $this->assertCount(0, Lance::all());
+        $this->assertEquals('O valor do lance não pode ser menor que o valor inicial do leilão.', $exceptionMessage);
     }
 
     public function testLanceNuncaPodeAssumirValorMenorOuIgualAoValorDoUltimoLance()
@@ -364,4 +368,5 @@ class LancesTest extends TestCase
         $this->assertCount(0, Lance::all());
         $this->assertNull(Lance::find($lance->id));
     }
+
 }
