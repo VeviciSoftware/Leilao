@@ -8,10 +8,13 @@
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
-        <testsuite name="Feature">
-            <directory>tests/Feature</directory>
+        <testsuite name="Integration">
+            <directory>tests/Integration/Database</directory>
         </testsuite>
     </testsuites>
+    <logging>
+        <testdoxText outputFile="testes-executados.txt"/>
+    </logging>
     <source>
         <include>
             <directory>app</directory>

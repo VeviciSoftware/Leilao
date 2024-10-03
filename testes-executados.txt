@@ -1,0 +1,37 @@
+Lances (Tests\Integration\Database\Lances)
+ [x] Lance nunca pode assumir valor menor que o valor inicial de um leilao
+ [x] Lance nunca pode assumir valor menor ou igual ao valor do ultimo lance
+ [x] Um mesmo usuario nao pode dar dois lances seguidos
+ [x] Buscar lista de lances pra um determinado leilao em ordem crescente de valor
+ [x] Busca maior e menor lance de um leilao
+ [x] Inserir lance
+ [x] Atualizar lance
+ [x] Deletar lance
+
+Leilao (Tests\Integration\Database\Leilao)
+ [x] Listagem de leiloes with data set #0
+ [x] Listagem de leiloes com filtro por status with data set #0
+ [x] Cadastro leilao inativo with data set #0
+ [x] Cadastro leilao aberto with data set #0
+ [x] Leilao aberto esta apto para receber lances with data set #0
+ [x] Leilao expira com base na data de expiracao with data set #0
+ [x] Leilao expirado deve ser finalizado with data set #0
+ [x] Leilao aberto pode ser finalizado with data set #0
+ [x] Leilao inativo nao pode ser finalizado with data set #0
+ [x] Usuario que deu o maior lance deve ser ganhador
+ [x] Create leilao
+ [x] Edit leilao
+ [x] Delete leilao with data set #0
+ [x] Get leilao with data set #0
+ [x] Get leiloes do banco with data set #0
+
+User (Tests\Integration\Database\User)
+ [x] Create user with data set #0
+ [x] Create user with data set #1
+ [x] Edit user with data set #0
+ [x] Edit user with data set #1
+ [x] Get user with data set #0
+ [x] Get user with data set #1
+ [x] List users with data set #0
+ [x] List users with data set #1
+

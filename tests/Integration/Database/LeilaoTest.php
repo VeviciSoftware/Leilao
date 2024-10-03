@@ -102,7 +102,7 @@ class LeilaoTest extends TestCase
 
         $lance = new Lance(
             [
-                'valor' => 100,
+                'valor' => 600,
                 'leilao_id' => $leilao->id,
                 'usuario_id' => $user->id
             ]
@@ -114,7 +114,7 @@ class LeilaoTest extends TestCase
         // Assert
         $this->assertTrue($leilao->isAberto());
         $this->assertCount(1, $leilao->lances);
-        $this->assertEquals(100, $leilao->lances->first()->valor);
+        $this->assertEquals(600, $leilao->lances->first()->valor);
     }
 
     /**

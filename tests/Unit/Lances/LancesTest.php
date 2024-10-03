@@ -131,7 +131,7 @@ class LancesTest extends TestCase
         $repository = new EloquentLanceRepository();
         $response = $repository->add($request);
     
-        $this->assertEquals('O valor do lance deve ser maior ou igual ao valor inicial do leilão', $response->getData()->mensagem);
+        $this->assertEquals('O valor do lance deve ser maior do que o valor inicial do leilão.', $response->getData()->mensagem);
         $this->assertEquals(400, $response->status());
     }
 
@@ -157,7 +157,7 @@ class LancesTest extends TestCase
         $repository = new EloquentLanceRepository();
         $response = $repository->add($request);
 
-        $this->assertEquals('O usuário não pode dar dois lances seguidos', $response->getData()->mensagem);
+        $this->assertEquals('O usuário não pode dar dois lances seguidos.', $response->getData()->mensagem);
         $this->assertEquals(400, $response->status());
     }
 
